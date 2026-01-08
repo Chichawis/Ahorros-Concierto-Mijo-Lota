@@ -1,4 +1,3 @@
-import { serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import {
   getFirestore,
@@ -8,10 +7,11 @@ import {
   doc,
   onSnapshot,
   query,
-  orderBy
+  orderBy,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// 🔐 TU CONFIGURACIÓN
+// 🔐 Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCdtOXIjjB_kL34DhJSGuaT5OWzw2i_A2E",
   authDomain: "cas-tracker-dcfc4.firebaseapp.com",
@@ -22,72 +22,68 @@ const firebaseConfig = {
   measurementId: "G-67K0LVYY2H"
 };
 
-// Inicializar Firebase
+// 🚀 Init Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// DOM
+// 🎯 Configuración
 const GOAL = 10000;
+
+// 📌 DOM
 const currentAmountEl = document.getElementById("currentAmount");
 const progressFill = document.getElementById("progressFill");
 const historyList = document.getElementById("historyList");
 const form = document.getElementById("saveForm");
+const nameInput = document.getElementById("name");
+const amountInput = document.getElementById("amount");
 
-// Referencia a colección
+// 📂 Firestore collection
 const savingsRef = collection(db, "savings");
 
-// 🔁 Escucha en tiempo real
-onSnapshot(
-  query(savingsRef, orderBy("createdAt")),
-  snapshot => {
-    let total = 0;
-    historyList.innerHTML = "";
+// 🔁 Listener en tiempo real
+const q = query(savingsRef, orderBy("createdAt"));
 
-    snapshot.forEach(docSnap => {
-      const data = docSnap.data();
+onSnapshot(q, snapshot => {
+  let total = 0;
+  historyList.innerHTML = "";
 
-      if (!data.amount) return;
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    if (!data.amount || !data.name) return;
 
-      total += data.amount;
+    total += data.amount;
 
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <span>${data.name} — $${data.amount}</span>
-        <button class="delete-btn">Eliminar</button>
-      `;
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span>${data.name} — $${data.amount}</span>
+      <button class="delete-btn">Eliminar</button>
+    `;
 
-      li.querySelector(".delete-btn").addEventListener("click", async () => {
-        await deleteDoc(doc(db, "savings", docSnap.id));
-      });
-
-      historyList.prepend(li);
+    li.querySelector(".delete-btn").addEventListener("click", async () => {
+      await deleteDoc(doc(db, "savings", docSnap.id));
     });
 
-    currentAmountEl.textContent = `$${total.toLocaleString()}`;
-    progressFill.style.width = `${Math.min((total / GOAL) * 100, 100)}%`;
-  }
-);
+    historyList.prepend(li);
+  });
 
-    currentAmountEl.textContent = `$${total.toLocaleString()}`;
-    const percentage = Math.min((total / GOAL) * 100, 100);
-    progressFill.style.width = `${percentage}%`;
-  }
-);
+  currentAmountEl.textContent = `$${total.toLocaleString()}`;
+  progressFill.style.width = `${Math.min((total / GOAL) * 100, 100)}%`;
+});
 
 // ➕ Agregar ahorro
 form.addEventListener("submit", async e => {
   e.preventDefault();
 
-  const name = document.getElementById("name").value.trim();
-  const amount = Number(document.getElementById("amount").value);
+  const name = nameInput.value.trim();
+  const amount = Number(amountInput.value);
 
   if (!name || amount <= 0) return;
 
   await addDoc(savingsRef, {
-  name,
-  amount,
-  createdAt: serverTimestamp()
-});
+    name,
+    amount,
+    createdAt: serverTimestamp()
+  });
 
   form.reset();
 });
