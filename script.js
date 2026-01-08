@@ -79,11 +79,16 @@ form.addEventListener("submit", async e => {
 
   if (!name || amount <= 0) return;
 
-  await addDoc(savingsRef, {
-    name,
-    amount,
-    createdAt: serverTimestamp()
-  });
+  try {
+    await addDoc(savingsRef, {
+      name,
+      amount,
+      createdAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error("ERROR AL GUARDAR:", error);
+    alert("Error al guardar. Revisa la consola.");
+  }
 
   form.reset();
 });
