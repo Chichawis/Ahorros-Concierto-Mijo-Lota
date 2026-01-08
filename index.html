@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ahorros Concierto Milo J</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<main class="container">
+<h1>🎶 Ahorros Concierto Milo J</h1>
+
+
+<section class="progress-section">
+<div class="progress-info">
+<span id="currentAmount">$0</span>
+<span id="goalAmount">/ $10,000</span>
+</div>
+<div class="progress-bar">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+</section>
+
+
+<section class="form-section">
+<h2>Agregar ahorro</h2>
+<form id="saveForm">
+<input type="text" id="name" placeholder="¿Quién ahorra?" required />
+<input type="number" id="amount" placeholder="Cantidad ($)" required min="1" />
+<button type="submit">Agregar</button>
+</form>
+</section>
+
+
+<section class="history-section">
+<h2>Historial</h2>
+<ul id="historyList"></ul>
+</section>
+</main>
+
+
+<script src="script.js"></script>
+</body>
+</html>
