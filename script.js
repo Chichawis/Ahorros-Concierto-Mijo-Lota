@@ -26,7 +26,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🎯 Configuración
+// 🎯 Config
 const GOAL = 10000;
 
 // 📌 DOM
@@ -37,10 +37,10 @@ const form = document.getElementById("saveForm");
 const nameInput = document.getElementById("name");
 const amountInput = document.getElementById("amount");
 
-// 📂 Firestore collection
+// 📂 Collection
 const savingsRef = collection(db, "savings");
 
-// 🔁 Listener en tiempo real
+// 🔁 Real-time listener
 const q = query(savingsRef, orderBy("createdAt"));
 
 onSnapshot(q, snapshot => {
@@ -49,7 +49,7 @@ onSnapshot(q, snapshot => {
 
   snapshot.forEach(docSnap => {
     const data = docSnap.data();
-    if (!data.amount || !data.name) return;
+    if (!data.name || !data.amount) return;
 
     total += data.amount;
 
@@ -70,7 +70,7 @@ onSnapshot(q, snapshot => {
   progressFill.style.width = `${Math.min((total / GOAL) * 100, 100)}%`;
 });
 
-// ➕ Agregar ahorro
+// ➕ Add saving
 form.addEventListener("submit", async e => {
   e.preventDefault();
 
