@@ -1,3 +1,4 @@
+import { serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import {
   getFirestore,
@@ -37,13 +38,16 @@ const savingsRef = collection(db, "savings");
 
 // 🔁 Escucha en tiempo real
 onSnapshot(
-  query(savingsRef, orderBy("createdAt", "asc")),
+  query(savingsRef, orderBy("createdAt")),
   snapshot => {
     let total = 0;
     historyList.innerHTML = "";
 
-    snapshot.docs.forEach(docSnap => {
+    snapshot.forEach(docSnap => {
       const data = docSnap.data();
+
+      if (!data.amount) return;
+
       total += data.amount;
 
       const li = document.createElement("li");
@@ -58,6 +62,11 @@ onSnapshot(
 
       historyList.prepend(li);
     });
+
+    currentAmountEl.textContent = `$${total.toLocaleString()}`;
+    progressFill.style.width = `${Math.min((total / GOAL) * 100, 100)}%`;
+  }
+);
 
     currentAmountEl.textContent = `$${total.toLocaleString()}`;
     const percentage = Math.min((total / GOAL) * 100, 100);
@@ -75,10 +84,10 @@ form.addEventListener("submit", async e => {
   if (!name || amount <= 0) return;
 
   await addDoc(savingsRef, {
-    name,
-    amount,
-    createdAt: Date.now()
-  });
+  name,
+  amount,
+  createdAt: serverTimestamp()
+});
 
   form.reset();
 });
